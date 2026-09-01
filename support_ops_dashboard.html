@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Support Ops — Team Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --ink:      #171A34;
+    --paper:    #F6F5FB;
+    --surface:  #FFFFFF;
+    --coral:    #FF5F45;
+    --coral-soft: rgba(255,95,69,0.10);
+    --teal:     #12B8A6;
+    --teal-soft: rgba(18,184,166,0.12);
+    --amber:    #FFB100;
+    --amber-soft: rgba(255,177,0,0.14);
+    --muted:    #6B6E85;
+    --border:   rgba(23,26,52,0.08);
+    --border-strong: rgba(23,26,52,0.14);
+  }
+
+  html, body { min-height: 100%; }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  .num { font-family: 'IBM Plex Mono', monospace; font-variant-numeric: tabular-nums; }
+
+  /* ── TOPBAR ── */
+  .topbar {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    min-height: 64px;
+    padding: 10px 32px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+  .brand { display: flex; align-items: center; gap: 10px; }
+  .brand-mark {
+    width: 34px; height: 34px;
+    border-radius: 9px;
+    background: linear-gradient(135deg, var(--coral), var(--amber));
+    display: flex; align-items: center; justify-content: center;
+    color: #fff;
+    font-size: 16px;
+  }
+  .brand-name { font-family: 'Fraunces', serif; font-weight: 600; font-size: 19px; }
+
+  .tabs { display: flex; gap: 4px; margin-left: 8px; }
+  .tab {
+    background: none; border: none;
+    font-family: inherit; font-size: 14px; font-weight: 500;
+    color: var(--muted);
+    padding: 10px 6px;
+    margin: 0 8px;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+  }
+  .tab.active { color: var(--ink); font-weight: 600; border-bottom-color: var(--coral); }
+  .tab:hover:not(.active) { color: var(--ink); }
+
+  .range-toggle {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .seg-group {
+    display: flex;
+    background: var(--paper);
+    border-radius: 8px;
+    padding: 3px;
+    gap: 2px;
+  }
+  .seg {
+    border: none;
+    background: none;
+    font-family: inherit;
+    font-size: 12.5px;
+    font-weight: 500;
+    color: var(--muted);
+    padding: 7px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+  }
+  .seg.active { background: var(--surface); color: var(--ink); box-shadow: 0 1px 2px rgba(23,26,52,0.08); }
+  .range-dates { font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--muted); white-space: nowrap; }
+
+  /* ── LAYOUT ── */
+  .view { display: none; padding: 36px 32px 56px; max-width: 1180px; margin: 0 auto; flex-direction: column; gap: 22px; }
+  .view.active { display: flex; }
+
+  .panel {
+    background: var(--surface);
+    border-radius: 12px;
+    padding: 24px 26px;
+    box-shadow: 0 1px 2px rgba(23,26,52,0.05);
+  }
+  .panel-title { font-size: 15px; font-weight: 600; margin-bottom: 3px; }
+  .panel-sub { font-size: 12.5px; color: var(--muted); margin-bottom: 18px; }
+
+  /* ── HERO ROW ── */
+  .hero-row { display: grid; grid-template-columns: 1.35fr 1fr; gap: 20px; }
+
+  .hero-card {
+    background: var(--surface);
+    border-radius: 20px;
+    padding: 28px 30px 22px;
+    box-shadow: 0 1px 2px rgba(23,26,52,0.05);
+    position: relative;
+    transition: opacity 0.15s;
+  }
+  .hero-label { font-size: 13px; color: var(--muted); margin-bottom: 8px; }
+  .hero-value-row { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+  .hero-value { font-family: 'Fraunces', serif; font-weight: 700; font-size: 46px; line-height: 1; }
+  .hero-delta { display: flex; align-items: center; gap: 4px; font-size: 13px; font-weight: 500; }
+  .hero-delta.good { color: var(--teal); }
+  .hero-delta.bad { color: var(--coral); }
+  .hero-delta i { font-size: 15px; }
+  .hero-spark { margin-top: 18px; }
+
+  .stat-list { display: flex; flex-direction: column; justify-content: center; gap: 0; transition: opacity 0.15s; }
+  .stat-row {
+    display: flex; align-items: baseline; justify-content: space-between;
+    padding: 15px 4px;
+    border-top: 1px solid var(--border);
+  }
+  .stat-row:first-child { border-top: none; }
+  .stat-label { color: var(--muted); font-size: 13px; }
+  .stat-value { font-family: 'Fraunces', serif; font-weight: 600; font-size: 24px; }
+  .stat-value.flag { color: var(--coral); }
+
+  /* ── CHART GRID ── */
+  .chart-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+
+  .annotation {
+    position: absolute;
+    transform: translate(-50%, -100%);
+    text-align: center;
+    pointer-events: none;
+  }
+  .annotation .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--coral); margin: 0 auto 6px; box-shadow: 0 0 0 4px var(--coral-soft); }
+  .annotation .tag {
+    font-size: 11px; color: var(--coral); font-weight: 600;
+    background: var(--surface);
+    border: 1px solid var(--coral);
+    border-radius: 5px;
+    padding: 3px 7px;
+    white-space: nowrap;
+  }
+
+  .legend { display: flex; gap: 18px; margin-top: 12px; }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); }
+  .legend-swatch { width: 9px; height: 9px; border-radius: 2px; }
+
+  .bar-labels { display: flex; justify-content: space-between; margin-top: 8px; }
+  .bar-labels span { font-size: 12px; color: var(--muted); flex: 1; text-align: center; }
+
+  .pr-row { display: grid; grid-template-columns: 30px 1fr 40px; align-items: center; gap: 10px; margin-bottom: 12px; }
+  .pr-row:last-child { margin-bottom: 0; }
+  .pr-tag { font-size: 12px; font-weight: 600; }
+  .pr-track { height: 10px; border-radius: 5px; background: var(--paper); overflow: hidden; cursor: default; }
+  .pr-fill { height: 100%; border-radius: 5px; }
+  .pr-val { font-size: 12.5px; color: var(--muted); text-align: right; }
+
+  /* ── CHART HOVER TARGETS / TOOLTIP ── */
+  .pt { cursor: pointer; }
+  .pt circle.hit { fill: transparent; }
+  .pt circle.dot { fill: currentColor; opacity: 0; transition: opacity 0.1s; }
+  .pt:hover circle.dot { opacity: 1; }
+  .bar-hit:hover, .pr-track:hover .pr-fill { filter: brightness(1.08); }
+
+  #tooltip {
+    position: fixed;
+    z-index: 50;
+    background: var(--ink);
+    color: #fff;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11.5px;
+    padding: 6px 10px;
+    border-radius: 6px;
+    pointer-events: none;
+    opacity: 0;
+    transform: translate(-50%, -130%);
+    transition: opacity 0.1s;
+    white-space: nowrap;
+  }
+  #tooltip.show { opacity: 1; }
+
+  /* ── TEAM TAB ── */
+  .okr-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 20px; }
+  .okr-title { font-size: 15px; font-weight: 600; }
+  .okr-sub { font-size: 12.5px; color: var(--muted); }
+  .kr-row { margin-bottom: 16px; }
+  .kr-row:last-child { margin-bottom: 0; }
+  .kr-top { display: flex; justify-content: space-between; margin-bottom: 7px; font-size: 13px; }
+  .kr-label { color: var(--ink); }
+  .kr-pct { font-family: 'IBM Plex Mono', monospace; color: var(--muted); }
+  .kr-pct.done { color: var(--teal); }
+  .kr-track { height: 8px; border-radius: 4px; background: var(--paper); overflow: hidden; }
+  .kr-fill { height: 100%; border-radius: 4px; background: var(--coral); }
+  .kr-fill.done { background: var(--teal); }
+
+  .note-panel {
+    background: var(--amber-soft);
+    border-left: 3px solid var(--amber);
+    border-radius: 8px;
+    padding: 18px 22px;
+  }
+  .note-label { font-size: 11.5px; font-weight: 600; color: #8a6400; margin-bottom: 8px; }
+  .note-text { font-family: 'Fraunces', serif; font-size: 16px; font-weight: 500; line-height: 1.5; color: #40331a; }
+
+  .roster-head-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; flex-wrap: wrap; gap: 10px; }
+  .search-box {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--paper);
+    border-radius: 8px;
+    padding: 8px 12px;
+    min-width: 220px;
+  }
+  .search-box i { color: var(--muted); font-size: 15px; }
+  .search-box input {
+    border: none; background: none; outline: none;
+    font-family: inherit; font-size: 13px; color: var(--ink);
+    width: 100%;
+  }
+  .search-box input::placeholder { color: var(--muted); }
+
+  .roster { width: 100%; border-collapse: collapse; margin-top: 14px; }
+  .roster th {
+    text-align: left; font-size: 12px; font-weight: 500; color: var(--muted);
+    padding: 0 10px 12px; border-bottom: 1px solid var(--border-strong);
+    user-select: none;
+  }
+  .roster th.sortable { cursor: pointer; }
+  .roster th.sortable:hover { color: var(--ink); }
+  .roster th.num-col, .roster td.num-col { text-align: right; }
+  .sort-caret { display: inline-block; margin-left: 3px; font-size: 10px; opacity: 0.35; }
+  .sort-caret.active { opacity: 1; color: var(--coral); }
+  .roster td { padding: 14px 10px; border-bottom: 1px solid var(--border); font-size: 13.5px; }
+  .roster tbody tr.agent-row { cursor: pointer; }
+  .roster tbody tr.agent-row:hover td { background: var(--paper); }
+  .roster tr.detail-row td { border-bottom: 1px solid var(--border); background: var(--paper); padding: 14px 10px 16px 48px; font-size: 13px; color: var(--muted); }
+  .roster tr.detail-row[hidden] { display: none; }
+  .roster tbody tr:last-child td { border-bottom: none; }
+  .roster tbody tr.detail-row:last-child td { border-bottom: none; }
+
+  .agent-cell { display: flex; align-items: center; gap: 10px; }
+  .row-chevron { font-size: 13px; color: var(--muted); transition: transform 0.15s; flex-shrink: 0; }
+  .agent-row.open .row-chevron { transform: rotate(90deg); }
+  .agent-initial {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--ink); color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 600; flex-shrink: 0;
+  }
+  .agent-name { font-weight: 500; }
+  .agent-role { font-size: 11.5px; color: var(--muted); }
+
+  .workload-cell { display: flex; align-items: center; gap: 8px; justify-content: flex-end; }
+  .workload-track { width: 70px; height: 6px; border-radius: 3px; background: var(--paper); overflow: hidden; flex-shrink: 0; }
+  .workload-fill { height: 100%; border-radius: 3px; }
+  .workload-pct { font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; color: var(--muted); }
+
+  .trend-up { color: var(--teal); }
+  .trend-down { color: var(--coral); }
+  .trend-flat { color: var(--muted); }
+
+  .no-results { text-align: center; padding: 30px 0; color: var(--muted); font-size: 13px; display: none; }
+
+  @media (max-width: 880px) {
+    .hero-row, .chart-row-3 { grid-template-columns: 1fr; }
+    .range-toggle { margin-left: 0; width: 100%; justify-content: space-between; }
+  }
+</style>
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark"><i class="ti ti-headset" aria-hidden="true"></i></div>
+      <span class="brand-name">Support Ops</span>
+    </div>
+    <nav class="tabs">
+      <button class="tab active" data-tab="analytics" type="button">Analytics</button>
+      <button class="tab" data-tab="team" type="button">Team</button>
+    </nav>
+    <div class="range-toggle">
+      <div class="seg-group">
+        <button class="seg active" data-range="this" type="button">This week</button>
+        <button class="seg" data-range="last" type="button">Last week</button>
+      </div>
+      <div class="range-dates num" id="range-dates">Aug 25–31, 2026</div>
+    </div>
+  </header>
+
+  <!-- ══════════════ ANALYTICS ══════════════ -->
+  <main class="view active" id="view-analytics">
+
+    <div class="hero-row">
+      <div class="hero-card" id="hero-card">
+        <div class="hero-label">Avg first response time</div>
+        <div class="hero-value-row">
+          <span class="hero-value num" id="hero-value">8m 42s</span>
+          <span class="hero-delta good" id="hero-delta"><i class="ti ti-trending-down" aria-hidden="true"></i><span id="hero-delta-text">1m 33s vs last week</span></span>
+        </div>
+        <div class="hero-spark">
+          <svg viewBox="0 0 220 50" width="100%" height="50" preserveAspectRatio="none">
+            <polyline points="0,5 17,8.5 34,12 51,19 68,22.6 85,27.4 102,32 119,35.6 135,33.2 152,38 169,41.5 186,42.6 203,45 220,45"
+              fill="none" stroke="var(--coral)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+      </div>
+
+      <div class="stat-list" id="stat-list">
+        <div class="stat-row">
+          <span class="stat-label">Tickets this period</span>
+          <span class="stat-value num" id="stat-tickets">1,284</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">CSAT</span>
+          <span class="stat-value num" id="stat-csat">94%</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Open backlog</span>
+          <span class="stat-value num flag" id="stat-backlog">47</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel" style="position:relative;">
+      <div class="panel-title">Ticket volume, last 14 days</div>
+      <div class="panel-sub">Email, chat, phone and social combined — hover a point for the daily count</div>
+      <svg viewBox="0 0 640 210" width="100%" height="210" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="volFill" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="var(--coral)" stop-opacity="0.16"/>
+            <stop offset="100%" stop-color="var(--coral)" stop-opacity="0"/>
+          </linearGradient>
+        </defs>
+        <polygon points="0,190 49,174.8 98,186.2 148,161.6 197,171.1 246,152.1 295,10 345,85.8 394,136.9 443,152.1 492,142.6 542,129.4 591,123.7 640,116.1 640,200 0,200"
+          fill="url(#volFill)"/>
+        <polyline points="0,190 49,174.8 98,186.2 148,161.6 197,171.1 246,152.1 295,10 345,85.8 394,136.9 443,152.1 492,142.6 542,129.4 591,123.7 640,116.1"
+          fill="none" stroke="var(--coral)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <g class="pt" style="color:var(--coral)" data-tip="Aug 18 · 150 tickets"><circle class="hit" cx="0" cy="190" r="10"/><circle class="dot" cx="0" cy="190" r="4"/></g>
+        <g class="pt" style="color:var(--coral)" data-tip="Aug 19 · 158 tickets"><circle class="hit" cx="49" cy="174.8" r="10"/><circle class="dot" cx="49" cy="174.8" r="4"/></g>
+        <g class="pt" style="color:var(--coral)" data-tip="Aug 20 · 152 tickets"><circle class="hit" cx="98" cy="186.2" r="10"/><circle class="dot" cx="98" cy="186.2" r="4"/></g>
+        <g class="pt" style="color:var(--coral)" data-tip="Aug 21 · 165 tickets"><circle class="hit" cx="148" cy="161.6" r="10"/><circle class="dot" cx="148" cy="161.6" r="4"/></g>
+        <g class="pt" style="color:var(--coral)" data-tip="Aug 22 · 160 tickets"><circle class="hit" cx="197" cy="171.1" r="10"/><circle class="dot" cx="197" cy="171.1" r="4"/></g>
+        <g class="pt" style="color:var(--coral)" data-tip="Aug 23 · 170 tickets"><circle class="hit" cx="246" cy="152.1" r="10"/><circle class="dot" cx="246" cy="152.1" r="4"/></g>
+        <g class="pt" style="color:var(--coral)" data-tip="Aug 24 · 245 tickets — checkout outage"><circle class="hit" cx="295" cy="10" r="10"/><circle class="dot" cx="295" cy="10" r="5"/></g>
+        <g class="pt" style="color:var(--coral)" data-tip="Aug 25 · 205 tickets"><circle class="hit" cx="345" cy="85.8" r="10"/><circle class="dot" cx="345" cy="85.8" r="4"/></g>
+        <g class="pt" style="color:var(--coral)" data-tip="Aug 26 · 178 tickets"><circle class="hit" cx="394" cy="136.9" r="10"/><circle class="dot" cx="394" cy="136.9" r="4"/></g>
+        <g class="pt" style="color:var(--coral)" data-tip="Aug 27 · 170 tickets"><circle class="hit" cx="443" cy="152.1" r="10"/><circle class="dot" cx="443" cy="152.1" r="4"/></g>
+        <g class="pt" style="color:var(--coral)" data-tip="Aug 28 · 175 tickets"><circle class="hit" cx="492" cy="142.6" r="10"/><circle class="dot" cx="492" cy="142.6" r="4"/></g>
+        <g class="pt" style="color:var(--coral)" data-tip="Aug 29 · 182 tickets"><circle class="hit" cx="542" cy="129.4" r="10"/><circle class="dot" cx="542" cy="129.4" r="4"/></g>
+        <g class="pt" style="color:var(--coral)" data-tip="Aug 30 · 185 tickets"><circle class="hit" cx="591" cy="123.7" r="10"/><circle class="dot" cx="591" cy="123.7" r="4"/></g>
+        <g class="pt" style="color:var(--coral)" data-tip="Aug 31 · 189 tickets"><circle class="hit" cx="640" cy="116.1" r="10"/><circle class="dot" cx="640" cy="116.1" r="4"/></g>
+      </svg>
+      <div class="annotation" style="left: 46.1%; top: 24px;">
+        <div class="dot"></div>
+        <div class="tag">Aug 24 — checkout outage</div>
+      </div>
+    </div>
+
+    <div class="chart-row-3">
+      <div class="panel">
+        <div class="panel-title">Volume by channel</div>
+        <div class="panel-sub">This week</div>
+        <svg viewBox="0 0 300 170" width="100%" height="150" preserveAspectRatio="none">
+          <rect class="bar-hit pt" data-tip="Email · 412 tickets" x="20" y="55.1" width="40" height="124.9" rx="4" fill="var(--coral)"/>
+          <rect class="bar-hit pt" data-tip="Chat · 528 tickets" x="90" y="20" width="40" height="160" rx="4" fill="var(--ink)"/>
+          <rect class="bar-hit pt" data-tip="Phone · 210 tickets" x="160" y="116.4" width="40" height="63.6" rx="4" fill="var(--teal)"/>
+          <rect class="bar-hit pt" data-tip="Social · 134 tickets" x="230" y="139.4" width="40" height="40.6" rx="4" fill="var(--amber)"/>
+        </svg>
+        <div class="bar-labels">
+          <span>Email<br><b class="num">412</b></span>
+          <span>Chat<br><b class="num">528</b></span>
+          <span>Phone<br><b class="num">210</b></span>
+          <span>Social<br><b class="num">134</b></span>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">CSAT trend</div>
+        <div class="panel-sub">Last 8 weeks — hover a point</div>
+        <svg viewBox="0 0 300 100" width="100%" height="100" preserveAspectRatio="none">
+          <polyline points="10,90 50,58 90,74 130,42 170,10 210,42 250,90 290,26"
+            fill="none" stroke="var(--teal)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <g class="pt" style="color:var(--teal)" data-tip="7 weeks ago · 90%"><circle class="hit" cx="10" cy="90" r="9"/><circle class="dot" cx="10" cy="90" r="4"/></g>
+          <g class="pt" style="color:var(--teal)" data-tip="6 weeks ago · 92%"><circle class="hit" cx="50" cy="58" r="9"/><circle class="dot" cx="50" cy="58" r="4"/></g>
+          <g class="pt" style="color:var(--teal)" data-tip="5 weeks ago · 91%"><circle class="hit" cx="90" cy="74" r="9"/><circle class="dot" cx="90" cy="74" r="4"/></g>
+          <g class="pt" style="color:var(--teal)" data-tip="4 weeks ago · 93%"><circle class="hit" cx="130" cy="42" r="9"/><circle class="dot" cx="130" cy="42" r="4"/></g>
+          <g class="pt" style="color:var(--teal)" data-tip="3 weeks ago · 95%"><circle class="hit" cx="170" cy="10" r="9"/><circle class="dot" cx="170" cy="10" r="4"/></g>
+          <g class="pt" style="color:var(--teal)" data-tip="2 weeks ago · 93%"><circle class="hit" cx="210" cy="42" r="9"/><circle class="dot" cx="210" cy="42" r="4"/></g>
+          <g class="pt" style="color:var(--teal)" data-tip="Last week · 90% — outage"><circle class="hit" cx="250" cy="90" r="9"/><circle class="dot" cx="250" cy="90" r="4"/></g>
+          <g class="pt" style="color:var(--teal)" data-tip="This week · 94%"><circle class="hit" cx="290" cy="26" r="9"/><circle class="dot" cx="290" cy="26" r="4"/></g>
+        </svg>
+        <div class="legend">
+          <div class="legend-item"><span class="legend-swatch" style="background:var(--teal)"></span>94% this week, recovered from 90% during the outage</div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">Backlog by priority</div>
+        <div class="panel-sub">47 open tickets</div>
+        <div style="margin-top:6px;">
+          <div class="pr-row">
+            <span class="pr-tag" style="color:var(--coral)">P1</span>
+            <div class="pr-track pt" data-tip="Priority 1 · 3 open tickets"><div class="pr-fill" style="width:15.8%; background:var(--coral);"></div></div>
+            <span class="pr-val num">3</span>
+          </div>
+          <div class="pr-row">
+            <span class="pr-tag" style="color:var(--amber)">P2</span>
+            <div class="pr-track pt" data-tip="Priority 2 · 11 open tickets"><div class="pr-fill" style="width:57.9%; background:var(--amber);"></div></div>
+            <span class="pr-val num">11</span>
+          </div>
+          <div class="pr-row">
+            <span class="pr-tag" style="color:var(--ink)">P3</span>
+            <div class="pr-track pt" data-tip="Priority 3 · 19 open tickets"><div class="pr-fill" style="width:100%; background:var(--ink);"></div></div>
+            <span class="pr-val num">19</span>
+          </div>
+          <div class="pr-row">
+            <span class="pr-tag" style="color:var(--teal)">P4</span>
+            <div class="pr-track pt" data-tip="Priority 4 · 14 open tickets"><div class="pr-fill" style="width:73.7%; background:var(--teal);"></div></div>
+            <span class="pr-val num">14</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ══════════════ TEAM ══════════════ -->
+  <main class="view" id="view-team">
+
+    <div class="panel">
+      <div class="okr-head">
+        <div>
+          <div class="okr-title">Q3 objective: bring resolution time down without losing satisfaction</div>
+          <div class="okr-sub">3 key results · updated Aug 31</div>
+        </div>
+      </div>
+      <div class="kr-row">
+        <div class="kr-top"><span class="kr-label">Avg resolution time: 5.5h → 4.0h (currently 4.3h)</span><span class="kr-pct num">80%</span></div>
+        <div class="kr-track"><div class="kr-fill" style="width:80%;"></div></div>
+      </div>
+      <div class="kr-row">
+        <div class="kr-top"><span class="kr-label">Team CSAT at or above 92% (currently 94%)</span><span class="kr-pct num done">Done</span></div>
+        <div class="kr-track"><div class="kr-fill done" style="width:100%;"></div></div>
+      </div>
+      <div class="kr-row">
+        <div class="kr-top"><span class="kr-label">Backlog under 40 open tickets (down from 65, currently 47)</span><span class="kr-pct num">72%</span></div>
+        <div class="kr-track"><div class="kr-fill" style="width:72%;"></div></div>
+      </div>
+    </div>
+
+    <div class="note-panel">
+      <div class="note-label">Manager's note</div>
+      <div class="note-text">Eleni's CSAT dipped after she absorbed overflow from the billing queue during the outage — moving two of her recurring accounts to Nikos this week. Yannis is six weeks in and still ramping, but his resolution time has dropped every week since onboarding.</div>
+    </div>
+
+    <div class="panel">
+      <div class="roster-head-row">
+        <div>
+          <div class="panel-title">Team roster</div>
+          <div class="panel-sub" style="margin-bottom:0;">This week · click a row for notes, click a column to sort</div>
+        </div>
+        <div class="search-box">
+          <i class="ti ti-search" aria-hidden="true"></i>
+          <input type="text" id="roster-search" placeholder="Filter by name">
+        </div>
+      </div>
+      <table class="roster">
+        <thead>
+          <tr>
+            <th>Agent</th>
+            <th class="num-col sortable" data-sort="closed">Closed<span class="sort-caret">▲</span></th>
+            <th class="num-col sortable" data-sort="resolution">Avg resolution<span class="sort-caret">▲</span></th>
+            <th class="num-col sortable" data-sort="csat">CSAT<span class="sort-caret">▲</span></th>
+            <th class="sortable" data-sort="workload">Workload<span class="sort-caret">▲</span></th>
+            <th class="num-col">Trend</th>
+          </tr>
+        </thead>
+        <tbody id="roster-body">
+
+          <tr class="agent-row" data-name="sofia michailidou" data-closed="102" data-resolution="2.8" data-csat="97" data-workload="95">
+            <td><div class="agent-cell"><i class="ti ti-chevron-right row-chevron" aria-hidden="true"></i><div class="agent-initial">SM</div><div><div class="agent-name">Sofia Michailidou</div><div class="agent-role">Senior agent</div></div></div></td>
+            <td class="num-col num">102</td>
+            <td class="num-col num">2.8h</td>
+            <td class="num-col num">97%</td>
+            <td><div class="workload-cell"><div class="workload-track"><div class="workload-fill" style="width:79%; background:var(--teal);"></div></div><span class="workload-pct num">95%</span></div></td>
+            <td class="num-col trend-up"><i class="ti ti-trending-up" aria-hidden="true"></i></td>
+          </tr>
+          <tr class="detail-row" hidden><td colspan="6">Top closer this month — currently mentoring Yannis through onboarding.</td></tr>
+
+          <tr class="agent-row" data-name="eleni papadopoulou" data-closed="96" data-resolution="4.2" data-csat="89" data-workload="108">
+            <td><div class="agent-cell"><i class="ti ti-chevron-right row-chevron" aria-hidden="true"></i><div class="agent-initial">EP</div><div><div class="agent-name">Eleni Papadopoulou</div><div class="agent-role">Senior agent</div></div></div></td>
+            <td class="num-col num">96</td>
+            <td class="num-col num">4.2h</td>
+            <td class="num-col num">89%</td>
+            <td><div class="workload-cell"><div class="workload-track"><div class="workload-fill" style="width:90%; background:var(--coral);"></div></div><span class="workload-pct num">108%</span></div></td>
+            <td class="num-col trend-down"><i class="ti ti-trending-down" aria-hidden="true"></i></td>
+          </tr>
+          <tr class="detail-row" hidden><td colspan="6">Queue rebalanced this week after absorbing billing overflow during the outage; CSAT expected to recover by Friday.</td></tr>
+
+          <tr class="agent-row" data-name="nikos anagnostou" data-closed="88" data-resolution="3.1" data-csat="96" data-workload="92">
+            <td><div class="agent-cell"><i class="ti ti-chevron-right row-chevron" aria-hidden="true"></i><div class="agent-initial">NA</div><div><div class="agent-name">Nikos Anagnostou</div><div class="agent-role">Agent</div></div></div></td>
+            <td class="num-col num">88</td>
+            <td class="num-col num">3.1h</td>
+            <td class="num-col num">96%</td>
+            <td><div class="workload-cell"><div class="workload-track"><div class="workload-fill" style="width:77%; background:var(--teal);"></div></div><span class="workload-pct num">92%</span></div></td>
+            <td class="num-col trend-up"><i class="ti ti-trending-up" aria-hidden="true"></i></td>
+          </tr>
+          <tr class="detail-row" hidden><td colspan="6">Picked up two accounts from Eleni this week; workload has room before it becomes a concern.</td></tr>
+
+          <tr class="agent-row" data-name="katerina vlachou" data-closed="91" data-resolution="3.4" data-csat="94" data-workload="88">
+            <td><div class="agent-cell"><i class="ti ti-chevron-right row-chevron" aria-hidden="true"></i><div class="agent-initial">KV</div><div><div class="agent-name">Katerina Vlachou</div><div class="agent-role">Agent</div></div></div></td>
+            <td class="num-col num">91</td>
+            <td class="num-col num">3.4h</td>
+            <td class="num-col num">94%</td>
+            <td><div class="workload-cell"><div class="workload-track"><div class="workload-fill" style="width:73%; background:var(--teal);"></div></div><span class="workload-pct num">88%</span></div></td>
+            <td class="num-col trend-up"><i class="ti ti-trending-up" aria-hidden="true"></i></td>
+          </tr>
+          <tr class="detail-row" hidden><td colspan="6">Consistent performer across every metric — flagged for the senior-agent track next quarter.</td></tr>
+
+          <tr class="agent-row" data-name="dimitris karagiannis" data-closed="74" data-resolution="5.6" data-csat="91" data-workload="78">
+            <td><div class="agent-cell"><i class="ti ti-chevron-right row-chevron" aria-hidden="true"></i><div class="agent-initial">DK</div><div><div class="agent-name">Dimitris Karagiannis</div><div class="agent-role">Agent</div></div></div></td>
+            <td class="num-col num">74</td>
+            <td class="num-col num">5.6h</td>
+            <td class="num-col num">91%</td>
+            <td><div class="workload-cell"><div class="workload-track"><div class="workload-fill" style="width:65%; background:var(--amber);"></div></div><span class="workload-pct num">78%</span></div></td>
+            <td class="num-col trend-flat"><i class="ti ti-minus" aria-hidden="true"></i></td>
+          </tr>
+          <tr class="detail-row" hidden><td colspan="6">Handles the most complex billing escalations on the team — resolution time reflects ticket difficulty, not pace.</td></tr>
+
+          <tr class="agent-row" data-name="yannis papas" data-closed="67" data-resolution="6.1" data-csat="88" data-workload="65">
+            <td><div class="agent-cell"><i class="ti ti-chevron-right row-chevron" aria-hidden="true"></i><div class="agent-initial">YP</div><div><div class="agent-name">Yannis Papas</div><div class="agent-role">Agent, ramping</div></div></div></td>
+            <td class="num-col num">67</td>
+            <td class="num-col num">6.1h</td>
+            <td class="num-col num">88%</td>
+            <td><div class="workload-cell"><div class="workload-track"><div class="workload-fill" style="width:54%; background:var(--amber);"></div></div><span class="workload-pct num">65%</span></div></td>
+            <td class="num-col trend-up"><i class="ti ti-trending-up" aria-hidden="true"></i></td>
+          </tr>
+          <tr class="detail-row" hidden><td colspan="6">Six weeks in. Resolution time has dropped every week since onboarding started.</td></tr>
+
+        </tbody>
+      </table>
+      <div class="no-results" id="no-results">No agents match "<span id="no-results-term"></span>"</div>
+    </div>
+  </main>
+
+  <div id="tooltip"></div>
+
+<script>
+  // ── TAB SWITCHING ──
+  const tabs = document.querySelectorAll('.tab');
+  const views = { analytics: document.getElementById('view-analytics'), team: document.getElementById('view-team') };
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      Object.values(views).forEach(v => v.classList.remove('active'));
+      views[tab.dataset.tab].classList.add('active');
+    });
+  });
+
+  // ── RANGE TOGGLE ──
+  const rangeData = {
+    this: {
+      dates: 'Aug 25–31, 2026',
+      response: '8m 42s',
+      deltaText: '1m 33s vs last week',
+      deltaGood: true,
+      tickets: '1,284',
+      csat: '94%',
+      backlog: '47'
+    },
+    last: {
+      dates: 'Aug 18–24, 2026',
+      response: '10m 15s',
+      deltaText: '1m 33s vs prior week',
+      deltaGood: false,
+      tickets: '1,200',
+      csat: '90%',
+      backlog: '65'
+    }
+  };
+  const segButtons = document.querySelectorAll('.seg[data-range]');
+  const heroCard = document.getElementById('hero-card');
+  const statList = document.getElementById('stat-list');
+  segButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      segButtons.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const d = rangeData[btn.dataset.range];
+      heroCard.style.opacity = 0.4;
+      statList.style.opacity = 0.4;
+      setTimeout(() => {
+        document.getElementById('range-dates').textContent = d.dates;
+        document.getElementById('hero-value').textContent = d.response;
+        document.getElementById('hero-delta-text').textContent = d.deltaText;
+        const deltaEl = document.getElementById('hero-delta');
+        const icon = deltaEl.querySelector('i');
+        if (d.deltaGood) {
+          deltaEl.classList.remove('bad'); deltaEl.classList.add('good');
+          icon.className = 'ti ti-trending-down';
+        } else {
+          deltaEl.classList.remove('good'); deltaEl.classList.add('bad');
+          icon.className = 'ti ti-trending-up';
+        }
+        document.getElementById('stat-tickets').textContent = d.tickets;
+        document.getElementById('stat-csat').textContent = d.csat;
+        document.getElementById('stat-backlog').textContent = d.backlog;
+        heroCard.style.opacity = 1;
+        statList.style.opacity = 1;
+      }, 120);
+    });
+  });
+
+  // ── TOOLTIPS ──
+  const tooltip = document.getElementById('tooltip');
+  document.querySelectorAll('.pt, .bar-hit').forEach(el => {
+    el.addEventListener('mousemove', e => {
+      tooltip.textContent = el.dataset.tip || el.getAttribute('data-tip');
+      tooltip.style.left = e.clientX + 'px';
+      tooltip.style.top = e.clientY + 'px';
+      tooltip.classList.add('show');
+    });
+    el.addEventListener('mouseleave', () => tooltip.classList.remove('show'));
+  });
+
+  // ── ROSTER: EXPAND / COLLAPSE ──
+  document.querySelectorAll('.agent-row').forEach(row => {
+    row.addEventListener('click', () => {
+      const detail = row.nextElementSibling;
+      const isOpen = row.classList.toggle('open');
+      detail.hidden = !isOpen;
+    });
+  });
+
+  // ── ROSTER: SORT ──
+  const rosterBody = document.getElementById('roster-body');
+  function getPairs() {
+    const rows = Array.from(rosterBody.querySelectorAll('.agent-row'));
+    return rows.map(r => ({ row: r, detail: r.nextElementSibling }));
+  }
+  let sortState = { key: null, dir: 1 };
+  document.querySelectorAll('th.sortable').forEach(th => {
+    th.addEventListener('click', () => {
+      const key = th.dataset.sort;
+      sortState.dir = (sortState.key === key) ? -sortState.dir : 1;
+      sortState.key = key;
+      document.querySelectorAll('.sort-caret').forEach(c => { c.classList.remove('active'); c.textContent = '▲'; });
+      const caret = th.querySelector('.sort-caret');
+      caret.classList.add('active');
+      caret.textContent = sortState.dir === 1 ? '▲' : '▼';
+
+      const attrMap = { closed: 'closed', resolution: 'resolution', csat: 'csat', workload: 'workload' };
+      const pairs = getPairs();
+      pairs.sort((a, b) => {
+        const av = parseFloat(a.row.dataset[attrMap[key]]);
+        const bv = parseFloat(b.row.dataset[attrMap[key]]);
+        return (av - bv) * sortState.dir;
+      });
+      pairs.forEach(p => { rosterBody.appendChild(p.row); rosterBody.appendChild(p.detail); });
+    });
+  });
+
+  // ── ROSTER: SEARCH ──
+  const searchInput = document.getElementById('roster-search');
+  const noResults = document.getElementById('no-results');
+  const noResultsTerm = document.getElementById('no-results-term');
+  searchInput.addEventListener('input', () => {
+    const term = searchInput.value.trim().toLowerCase();
+    let visibleCount = 0;
+    getPairs().forEach(p => {
+      const match = p.row.dataset.name.includes(term);
+      p.row.style.display = match ? '' : 'none';
+      if (!match) { p.detail.hidden = true; p.row.classList.remove('open'); }
+      p.detail.style.display = match ? '' : 'none';
+      if (match) visibleCount++;
+    });
+    noResults.style.display = visibleCount === 0 ? 'block' : 'none';
+    noResultsTerm.textContent = searchInput.value.trim();
+  });
+</script>
+</body>
+</html>
