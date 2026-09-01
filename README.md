@@ -2,7 +2,11 @@
 
 A single-file, static HTML dashboard for visualizing support team analytics and roster performance. No build step, no backend — open it in a browser and it works.
 
-![Static](https://img.shields.io/badge/type-static%20HTML-blue) ![No dependencies](https://img.shields.io/badge/backend-none-lightgrey)
+<img width="1462" height="860" alt="image" src="https://github.com/user-attachments/assets/d5f16444-e794-41d2-8284-07e9c0ae49e6" />
+
+<img width="1388" height="512" alt="image" src="https://github.com/user-attachments/assets/3147f982-68c4-496b-92f8-c4b2160d2ca1" />
+
+
 
 ## Features
 
