@@ -1,6 +1,6 @@
 # Support Ops Dashboard
 
-A single-file, static HTML dashboard for visualizing support team analytics and roster performance. No build step, no backend — open it in a browser and it works.
+A single-file, static HTML dashboard for visualizing support team analytics and roster performance. No build step, no backend, just open it in a browser and it works.  Built this after getting frustrated with how many clicks it took to get a "how's the team doing this week" view out of our actual tools.
 
 <img width="1462" height="860" alt="image" src="https://github.com/user-attachments/assets/d5f16444-e794-41d2-8284-07e9c0ae49e6" />
 
@@ -33,12 +33,6 @@ No installation required.
 1. Download `support_ops_dashboard.html`
 2. Open it directly in any modern browser (double-click, or drag into a browser window)
 
-To serve it locally instead:
-
-```bash
-python3 -m http.server 8000
-# then visit http://localhost:8000/support_ops_dashboard.html
-```
 
 ## Tech stack
 
@@ -63,16 +57,6 @@ Key things to tweak, all near the top of the `<style>` block:
 - `rangeData` (in the `<script>` section) controls what the week toggle displays
 - Roster rows are plain `<tr>` elements in the `#roster-body` table — copy/edit/remove as needed
 
-## Browser support
-
-Works in any modern evergreen browser (Chrome, Firefox, Safari, Edge). Uses standard flexbox/grid CSS and vanilla DOM APIs — no polyfills included.
-
 ## License
 
-© 2026 Konstantina Gianniou. All rights reserved.
-
-This project, including its structure, design, and code, was created by Konstantina Gianniou and is shared here for portfolio and demonstration purposes only. It may not be reproduced, distributed, or used as the basis for a commercial product without explicit written permission from the author.
-
----
-
-Built by Konstantina Gianniou — Customer Support Operations · Internal Tools · Portfolio 2026
+© 2026 Konstantina Gianniou. Shared here for portfolio purposes. Don't reuse commercially without asking first.
